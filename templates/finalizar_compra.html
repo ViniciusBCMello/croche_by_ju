@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finalizar Compra - Croche by Ju</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #e6d5f0 0%, #d0e8f2 50%, #f5e8d0 100%);
+            color: #5a4a6a;
+            min-height: 100vh;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 2em;
+            color: #b19cd9;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .logo::before {
+            content: "🧶 ";
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .checkout-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .checkout-header h1 {
+            font-size: 2.5em;
+            color: #b19cd9;
+            margin-bottom: 10px;
+        }
+
+        .checkout-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h2 {
+            color: #5a4a6a;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #5a4a6a;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e6d5f0;
+            border-radius: 10px;
+            font-family: 'Georgia', serif;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #b19cd9;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .resumo-pedido {
+            background: linear-gradient(135deg, #f8f4fb, #f4f9fc);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .resumo-pedido h3 {
+            color: #b19cd9;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .resumo-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e6d5f0;
+        }
+
+        .resumo-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #b19cd9;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Georgia', serif;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #b19cd9, #9bc4d9);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(177, 156, 217, 0.5);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #5a4a6a;
+            border: 2px solid #b19cd9;
+        }
+
+        .btn-secondary:hover {
+            background: #f8f4fb;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .carrinho-itens {
+            display: none;
+        }
+
+        footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px 20px;
+            margin-top: 80px;
+            text-align: center;
+            color: #5a4a6a;
+        }
+
+        @media (max-width: 768px) {
+            .checkout-card {
+                padding: 25px;
+            }
+
+            .btn-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="logo">Croche by Ju</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="checkout-header">
+            <h1>🛍️ Finalizar Compra</h1>
+            <p>Complete os dados para receber seu produto</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="checkout-card">
+            <form method="POST" action="/finalizar-compra">
+                <div class="form-section">
+                    <h2>📋 Dados Pessoais</h2>
+                    
+                    <div class="form-group">
+                        <label for="nome">Nome Completo *</label>
+                        <input type="text" id="nome" name="nome" required placeholder="Seu nome completo">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">E-mail *</label>
+                        <input type="email" id="email" name="email" required placeholder="seu@email.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefone">Telefone/WhatsApp *</label>
+                        <input type="tel" id="telefone" name="telefone" required placeholder="(00) 00000-0000">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>📍 Endereço de Entrega</h2>
+                    
+                    <div class="form-group">
+                        <label for="endereco">Endereço Completo *</label>
+                        <textarea id="endereco" name="endereco" required placeholder="Rua, número, complemento, bairro, cidade e estado"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>🧶 Produto Selecionado</h2>
+                    
+                    <div class="form-group">
+                        <label for="produto_id">Produto *</label>
+                        <select id="produto_id" name="produto_id" required onchange="atualizarResumo()">
+                            <option value="">Selecione um produto</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="quantidade">Quantidade *</label>
+                        <input type="number" id="quantidade" name="quantidade" value="1" min="1" required onchange="atualizarResumo()">
+                    </div>
+                </div>
+
+                <div class="resumo-pedido">
+                    <h3>💰 Resumo do Pedido</h3>
+                    <div class="resumo-item">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">R$ 0,00</span>
+                    </div>
+                    <div class="resumo-item">
+                        <span>Frete:</span>
+                        <span>A calcular</span>
+                    </div>
+                    <div class="resumo-item">
+                        <span>Total:</span>
+                        <span id="total">R$ 0,00</span>
+                    </div>
+                </div>
+
+                <div class="btn-container">
+                    <a href="/produtos" class="btn btn-secondary">Continuar Comprando</a>
+                    <button type="submit" class="btn btn-primary">Confirmar Pedido</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Croche by Ju - Todos os direitos reservados</p>
+        <p>Feito com ❤️ e muitos pontos de crochê</p>
+    </footer>
+
+    <script>
+        // Simula carregamento de produtos (em produção, virá do backend)
+        const produtos = [];
+
+        function atualizarResumo() {
+            const produtoSelect = document.getElementById('produto_id');
+            const quantidade = parseInt(document.getElementById('quantidade').value) || 1;
+            
+            if (produtoSelect.value && produtos.length > 0) {
+                const produtoSelecionado = produtos.find(p => p.id == produtoSelect.value);
+                if (produtoSelecionado) {
+                    const subtotal = produtoSelecionado.preco * quantidade;
+                    document.getElementById('subtotal').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+                    document.getElementById('total').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+                }
+            }
+        }
+
+        // Carregar produtos (simulado - em produção virá de uma API)
+        window.addEventListener('DOMContentLoaded', function() {
+            // Aqui você faria uma requisição para buscar os produtos
+            fetch('/api/produtos')
+                .then(response => response.json())
+                .then(data => {
+                    produtos.push(...data);
+                    const select = document.getElementById('produto_id');
+                    data.forEach(produto => {
+                        const option = document.createElement('option');
+                        option.value = produto.id;
+                        option.textContent = `${produto.nome} - R$ ${produto.preco.toFixed(2)}`;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Erro ao carregar produtos:', error));
+        });
+    </script>
+</body>
+</html>
