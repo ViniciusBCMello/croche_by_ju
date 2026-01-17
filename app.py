@@ -4,8 +4,11 @@ from datetime import datetime
 import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'sua-chave-secreta-aqui'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///croche_store.db'
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "dev-secret")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    "DATABASE_URL",
+    "sqlite:///croche_store.db"
+)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -40,8 +43,9 @@ class Pedido(db.Model):
     produto = db.relationship('Produto', backref='pedidos')
 
 # Criar banco de dados
-with app.app_context():
-    db.create_all()
+if os.getenv("RENDER"):
+    with app.app_context():
+        db.create_all()
 
 # ROTAS
 @app.route('/')
