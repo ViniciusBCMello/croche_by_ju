@@ -115,7 +115,7 @@
             font-weight: 500;
         }
 
-        .categoria-btn:hover, .categoria-btn.active {
+        .categoria-btn:hover {
             background: #b19cd9;
             color: white;
         }
@@ -173,11 +173,15 @@
             font-weight: bold;
         }
 
-        .estoque-badge.low {
+        .estoque-badge.prazo-medio {
             background: #FF9800;
         }
 
-        .estoque-badge.out {
+        .estoque-badge.prazo-longo {
+            background: #9bc4d9;
+        }
+
+        .estoque-badge.indisponivel {
             background: #f44336;
         }
 
@@ -298,10 +302,10 @@
         <div class="filtros">
             <h3>Categorias</h3>
             <div class="categorias">
-                <a href="/produtos" class="categoria-btn {% if not request.args.get('categoria') %}active{% endif %}">Todas</a>
+                <a href="/produtos" class="categoria-btn">Todas</a>
                 {% for cat in categorias %}
                     {% if cat[0] %}
-                    <a href="/produtos?categoria={{ cat[0] }}" class="categoria-btn {% if request.args.get('categoria') == cat[0] %}active{% endif %}">{{ cat[0] }}</a>
+                    <a href="/produtos?categoria={{ cat[0] }}" class="categoria-btn">{{ cat[0] }}</a>
                     {% endif %}
                 {% endfor %}
             </div>
@@ -310,23 +314,23 @@
         {% if produtos %}
         <div class="produtos-grid">
             {% for produto in produtos %}
-            <div class="produto-card">
+            <a href="/produto/{{ produto.id }}" class="produto-card">
                 <div class="produto-img">
                     {% if produto.imagem_url %}
                         <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}">
                     {% else %}
                         🧶
                     {% endif %}
-                   
-                    <!--
-                    {% if produto.estoque > 10 %}
-                        <span class="estoque-badge">Em Estoque</span>
-                    {% elif produto.estoque > 0 %}
-                        <span class="estoque-badge low">Últimas Unidades</span>
+                    
+                    {% if not produto.disponivel %}
+                        <span class="estoque-badge indisponivel">Indisponível</span>
+                    {% elif produto.prazo_dias <= 7 %}
+                        <span class="estoque-badge">{{ produto.prazo_dias }} dias</span>
+                    {% elif produto.prazo_dias <= 15 %}
+                        <span class="estoque-badge prazo-medio">{{ produto.prazo_dias }} dias</span>
                     {% else %}
-                        <span class="estoque-badge out">Esgotado</span>
+                        <span class="estoque-badge prazo-longo">{{ produto.prazo_dias }} dias</span>
                     {% endif %}
-                    -->
                 </div>
                 <div class="produto-info">
                     {% if produto.categoria %}
@@ -336,10 +340,10 @@
                     <p>{{ produto.descricao }}</p>
                     <div class="produto-footer">
                         <div class="preco">R$ {{ "%.2f"|format(produto.preco) }}</div>
-                        <a href="/produto/{{ produto.id }}" class="btn-comprar">Ver Detalhes</a>
+                        <span class="btn-comprar">Ver Detalhes</span>
                     </div>
                 </div>
-            </div>
+            </a>
             {% endfor %}
         </div>
         {% else %}

@@ -20,9 +20,10 @@ class Produto(db.Model):
     descricao = db.Column(db.Text, nullable=False)
     preco = db.Column(db.Float, nullable=False)
     imagem_url = db.Column(db.String(200))
-    prazo = db.Column(db.Integer, default=0)
+    prazo_dias = db.Column(db.Integer, default=7)  # Prazo em dias para entrega
     categoria = db.Column(db.String(50))
     data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
+    disponivel = db.Column(db.Boolean, default=True)  # Se aceita encomendas
     
     def __repr__(self):
         return f'<Produto {self.nome}>'
@@ -47,7 +48,7 @@ if os.getenv("RENDER"):
     with app.app_context():
         db.create_all()
 
-# ROTAS
+# ROTAS PRINCIPAIS
 @app.route('/')
 def index():
     produtos_destaque = Produto.query.limit(6).all()
@@ -68,10 +69,6 @@ def produto_detalhe(id):
     produto = Produto.query.get_or_404(id)
     return render_template('produto_detalhe.html', produto=produto)
 
-@app.route('/carrinho')
-def carrinho():
-    return render_template('carrinho.html')
-
 @app.route('/finalizar-compra', methods=['GET', 'POST'])
 def finalizar_compra():
     if request.method == 'POST':
@@ -79,8 +76,8 @@ def finalizar_compra():
         quantidade = int(request.form.get('quantidade', 1))
         
         produto = Produto.query.get(produto_id)
-        if not produto or produto.estoque < quantidade:
-            flash('Produto indisponível ou estoque insuficiente', 'error')
+        if not produto or not produto.disponivel:
+            flash('Produto indisponível para encomenda no momento', 'error')
             return redirect(url_for('produtos'))
         
         pedido = Pedido(
@@ -93,16 +90,15 @@ def finalizar_compra():
             total=produto.preco * quantidade
         )
         
-        produto.estoque -= quantidade
         db.session.add(pedido)
         db.session.commit()
         
-        flash('Pedido realizado com sucesso!', 'success')
+        flash('Pedido realizado com sucesso! Entraremos em contato em breve.', 'success')
         return redirect(url_for('index'))
     
     return render_template('finalizar_compra.html')
 
-# CRUD Admin - Produtos
+# CRUD ADMIN - PRODUTOS
 @app.route('/admin/produtos')
 def admin_produtos():
     produtos = Produto.query.all()
@@ -116,8 +112,9 @@ def criar_produto():
             descricao=request.form.get('descricao'),
             preco=float(request.form.get('preco')),
             imagem_url=request.form.get('imagem_url'),
-            estoque=int(request.form.get('estoque')),
-            categoria=request.form.get('categoria')
+            prazo_dias=int(request.form.get('prazo_dias', 7)),
+            categoria=request.form.get('categoria'),
+            disponivel=request.form.get('disponivel') == 'on'
         )
         db.session.add(produto)
         db.session.commit()
@@ -135,8 +132,9 @@ def editar_produto(id):
         produto.descricao = request.form.get('descricao')
         produto.preco = float(request.form.get('preco'))
         produto.imagem_url = request.form.get('imagem_url')
-        produto.estoque = int(request.form.get('estoque'))
+        produto.prazo_dias = int(request.form.get('prazo_dias', 7))
         produto.categoria = request.form.get('categoria')
+        produto.disponivel = request.form.get('disponivel') == 'on'
         
         db.session.commit()
         flash('Produto atualizado com sucesso!', 'success')
@@ -152,10 +150,31 @@ def deletar_produto(id):
     flash('Produto deletado com sucesso!', 'success')
     return redirect(url_for('admin_produtos'))
 
+# ADMIN - PEDIDOS
 @app.route('/admin/pedidos')
 def admin_pedidos():
     pedidos = Pedido.query.order_by(Pedido.data_pedido.desc()).all()
     return render_template('admin_pedidos.html', pedidos=pedidos)
+
+@app.route('/admin/pedido/<int:id>/status/<status>')
+def alterar_status_pedido(id, status):
+    pedido = Pedido.query.get_or_404(id)
+    pedido.status = status
+    db.session.commit()
+    flash(f'Status do pedido #{id} alterado para {status}!', 'success')
+    return redirect(url_for('admin_pedidos'))
+
+# API
+@app.route('/api/produtos')
+def api_produtos():
+    produtos = Produto.query.all()
+    return jsonify([{
+        'id': p.id,
+        'nome': p.nome,
+        'preco': p.preco,
+        'prazo_dias': p.prazo_dias,
+        'disponivel': p.disponivel
+    } for p in produtos])
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -260,14 +260,6 @@
             <a href="/admin/produto/novo" class="btn btn-primary">+ Novo Produto</a>
         </div>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
         <div class="produtos-table">
             {% if produtos %}
             <table>
@@ -277,7 +269,7 @@
                         <th>Nome</th>
                         <th>Categoria</th>
                         <th>Preço</th>
-                        <th>Estoque</th>
+                        <th>Prazo</th>
                         <th>Status</th>
                         <th>Ações</th>
                     </tr>
@@ -300,14 +292,12 @@
                         </td>
                         <td>{{ produto.categoria or '-' }}</td>
                         <td><strong style="color: #b19cd9;">R$ {{ "%.2f"|format(produto.preco) }}</strong></td>
-                        <td>{{ produto.estoque }} un.</td>
+                        <td>{{ produto.prazo_dias }} dias</td>
                         <td>
-                            {% if produto.estoque > 10 %}
+                            {% if produto.disponivel %}
                                 <span class="badge badge-success">Disponível</span>
-                            {% elif produto.estoque > 0 %}
-                                <span class="badge badge-warning">Estoque Baixo</span>
                             {% else %}
-                                <span class="badge badge-danger">Esgotado</span>
+                                <span class="badge badge-danger">Indisponível</span>
                             {% endif %}
                         </td>
                         <td>

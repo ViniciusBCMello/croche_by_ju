@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ produto.nome }} - Croche by Ju</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #e6d5f0 0%, #d0e8f2 50%, #f5e8d0 100%);
+            color: #5a4a6a;
+            min-height: 100vh;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 2em;
+            color: #b19cd9;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo::before {
+            content: "🧶";
+            font-size: 1.2em;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #5a4a6a;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #b19cd9;
+        }
+
+        .breadcrumb {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+            color: #7a6a8a;
+            font-size: 0.95em;
+        }
+
+        .breadcrumb a {
+            color: #b19cd9;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .produto-detalhes {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+        }
+
+        .produto-imagem {
+            position: relative;
+        }
+
+        .imagem-principal {
+            width: 100%;
+            height: 500px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #e6d5f0, #d0e8f2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8em;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .imagem-principal img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .badge-estoque {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 0.9em;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .badge-disponivel {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .badge-prazo-medio {
+            background: #FF9800;
+            color: white;
+        }
+
+        .badge-prazo-longo {
+            background: #9bc4d9;
+            color: white;
+        }
+
+        .badge-indisponivel {
+            background: #f44336;
+            color: white;
+        }
+
+        .produto-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .categoria-tag {
+            display: inline-block;
+            padding: 8px 18px;
+            background: #f0e8f5;
+            color: #b19cd9;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            width: fit-content;
+        }
+
+        .produto-info h1 {
+            font-size: 2.5em;
+            color: #5a4a6a;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .preco-box {
+            background: linear-gradient(135deg, #f8f4fb, #f4f9fc);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+        }
+
+        .preco {
+            font-size: 2.5em;
+            color: #b19cd9;
+            font-weight: bold;
+        }
+
+        .preco-label {
+            color: #7a6a8a;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .descricao-box {
+            margin: 25px 0;
+        }
+
+        .descricao-box h2 {
+            color: #5a4a6a;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+        }
+
+        .descricao-box p {
+            color: #6a5a7a;
+            line-height: 1.8;
+            font-size: 1.05em;
+        }
+
+        .quantidade-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .quantidade-selector label {
+            color: #5a4a6a;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .quantidade-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            border: 2px solid #e6d5f0;
+            border-radius: 50px;
+            padding: 5px;
+        }
+
+        .quantidade-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: #b19cd9;
+            color: white;
+            border-radius: 50%;
+            font-size: 1.3em;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantidade-btn:hover {
+            background: #9a7dc4;
+            transform: scale(1.1);
+        }
+
+        .quantidade-input {
+            width: 60px;
+            text-align: center;
+            border: none;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #5a4a6a;
+        }
+
+        .btn-comprar {
+            width: 100%;
+            padding: 18px 30px;
+            background: linear-gradient(135deg, #b19cd9, #9bc4d9);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+            font-family: 'Georgia', serif;
+        }
+
+        .btn-comprar:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(177, 156, 217, 0.5);
+        }
+
+        .btn-comprar:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .info-adicional {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f4fb;
+            border-radius: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            color: #6a5a7a;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .icon {
+            font-size: 1.3em;
+        }
+
+        .btn-voltar {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            background: white;
+            color: #5a4a6a;
+            border: 2px solid #b19cd9;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .btn-voltar:hover {
+            background: #f8f4fb;
+        }
+
+        footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px 20px;
+            margin-top: 80px;
+            text-align: center;
+            color: #5a4a6a;
+        }
+
+        @media (max-width: 968px) {
+            .produto-detalhes {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .produto-info h1 {
+                font-size: 2em;
+            }
+
+            .imagem-principal {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="logo">Croche by Ju</a>
+            <ul>
+                <li><a href="/">Início</a></li>
+                <li><a href="/produtos">Produtos</a></li>
+                <li><a href="/admin/produtos">Admin</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="breadcrumb">
+        <a href="/">Início</a> / <a href="/produtos">Produtos</a> / {{ produto.nome }}
+    </div>
+
+    <main class="container">
+        <a href="/produtos" class="btn-voltar">← Voltar aos Produtos</a>
+
+        <div class="produto-detalhes">
+            <div class="produto-imagem">
+                <div class="imagem-principal">
+                    {% if produto.imagem_url %}
+                        <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}">
+                    {% else %}
+                        🧶
+                    {% endif %}
+                </div>
+                
+                {% if not produto.disponivel %}
+                    <div class="badge-estoque badge-indisponivel">❌ Indisponível</div>
+                {% elif produto.prazo_dias <= 7 %}
+                    <div class="badge-estoque badge-disponivel">⚡ Pronto em {{ produto.prazo_dias }} dias</div>
+                {% elif produto.prazo_dias <= 15 %}
+                    <div class="badge-estoque badge-prazo-medio">📅 Prazo: {{ produto.prazo_dias }} dias</div>
+                {% else %}
+                    <div class="badge-estoque badge-prazo-longo">🕐 Prazo: {{ produto.prazo_dias }} dias</div>
+                {% endif %}
+            </div>
+
+            <div class="produto-info">
+                {% if produto.categoria %}
+                <span class="categoria-tag">{{ produto.categoria }}</span>
+                {% endif %}
+
+                <h1>{{ produto.nome }}</h1>
+
+                <div class="preco-box">
+                    <div class="preco-label">Preço</div>
+                    <div class="preco">R$ {{ "%.2f"|format(produto.preco) }}</div>
+                </div>
+
+                <div class="descricao-box">
+                    <h2>📝 Descrição</h2>
+                    <p>{{ produto.descricao }}</p>
+                </div>
+
+                <div class="quantidade-selector">
+                    <label>Quantidade:</label>
+                    <div class="quantidade-controls">
+                        <button type="button" class="quantidade-btn" onclick="diminuir()">−</button>
+                        <input type="number" id="quantidade" name="quantidade" class="quantidade-input" value="1" min="1" max="99" readonly>
+                        <button type="button" class="quantidade-btn" onclick="aumentar()">+</button>
+                    </div>
+                </div>
+
+                {% if produto.disponivel %}
+                    <button type="button" class="btn-comprar" onclick="comprar()">🛒 Encomendar Agora</button>
+                {% else %}
+                    <button type="button" class="btn-comprar" disabled>Produto Indisponível</button>
+                {% endif %}
+
+                <div class="info-adicional">
+                    <div class="info-item">
+                        <span class="icon">🧶</span>
+                        <span>Feito à mão com muito carinho</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="icon">✨</span>
+                        <span>Materiais de alta qualidade</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="icon">📦</span>
+                        <span>Envio para todo o Brasil</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="icon">⏱️</span>
+                        <span>Prazo de produção: {{ produto.prazo_dias }} dias úteis</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="icon">💝</span>
+                        <span>Peça única feita sob encomenda</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Croche by Ju - Todos os direitos reservados</p>
+        <p>Feito com ❤️ e muitos pontos de crochê</p>
+    </footer>
+
+    <script>
+        const produtoId = {{ produto.id }};
+        const produtoPreco = {{ produto.preco }};
+
+        function aumentar() {
+            const input = document.getElementById('quantidade');
+            const atual = parseInt(input.value);
+            if (atual < 99) {
+                input.value = atual + 1;
+            }
+        }
+
+        function diminuir() {
+            const input = document.getElementById('quantidade');
+            const atual = parseInt(input.value);
+            if (atual > 1) {
+                input.value = atual - 1;
+            }
+        }
+
+        function comprar() {
+            const quantidade = document.getElementById('quantidade').value;
+            window.location.href = `/finalizar-compra?produto_id=${produtoId}&quantidade=${quantidade}`;
+        }
+    </script>
+</body>
+</html>
