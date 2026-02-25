@@ -18,5 +18,5 @@ packaging==25.0
 SQLAlchemy==2.0.45
 typing_extensions==4.15.0
 Werkzeug==3.1.5
-mercagopago==2.3.0
+mercadopago==2.3.0
 
