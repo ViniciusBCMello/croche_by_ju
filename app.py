@@ -2,14 +2,17 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import os
+import mercadopago
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "dev-secret")
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
-    "DATABASE_URL",
-    "sqlite:///croche_store.db"
-)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'sua-chave-secreta-aqui')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///croche_store.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+
+# Configuração do Mercado Pago
+MERCADOPAGO_ACCESS_TOKEN = os.environ.get('MERCADOPAGO_ACCESS_TOKEN', '')
+sdk = mercadopago.SDK(MERCADOPAGO_ACCESS_TOKEN) if MERCADOPAGO_ACCESS_TOKEN else None
 
 db = SQLAlchemy(app)
 
@@ -39,6 +42,9 @@ class Pedido(db.Model):
     quantidade = db.Column(db.Integer, nullable=False)
     total = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(20), default='Pendente')
+    status_pagamento = db.Column(db.String(20), default='Pendente')  # Pendente, Aprovado, Rejeitado
+    payment_id = db.Column(db.String(100))  # ID do pagamento no Mercado Pago
+    preference_id = db.Column(db.String(100))  # ID da preferência do Mercado Pago
     data_pedido = db.Column(db.DateTime, default=datetime.utcnow)
     
     produto = db.relationship('Produto', backref='pedidos')
@@ -80,6 +86,7 @@ def finalizar_compra():
             flash('Produto indisponível para encomenda no momento', 'error')
             return redirect(url_for('produtos'))
         
+        # Criar pedido
         pedido = Pedido(
             nome_cliente=request.form.get('nome'),
             email=request.form.get('email'),
@@ -93,10 +100,132 @@ def finalizar_compra():
         db.session.add(pedido)
         db.session.commit()
         
-        flash('Pedido realizado com sucesso! Entraremos em contato em breve.', 'success')
-        return redirect(url_for('index'))
+        # Criar preferência de pagamento no Mercado Pago
+        if sdk and MERCADOPAGO_ACCESS_TOKEN:
+            try:
+                print(f"🔄 Criando preferência de pagamento para pedido #{pedido.id}")
+                
+                preference_data = {
+                    "items": [
+                        {
+                            "title": produto.nome,
+                            "quantity": quantidade,
+                            "unit_price": float(produto.preco),
+                            "currency_id": "BRL"
+                        }
+                    ],
+                    "payer": {
+                        "name": request.form.get('nome'),
+                        "email": request.form.get('email')
+                    },
+                    "back_urls": {
+                        "success": url_for('pagamento_sucesso', pedido_id=pedido.id, _external=True),
+                        "failure": url_for('pagamento_falha', pedido_id=pedido.id, _external=True),
+                        "pending": url_for('pagamento_pendente', pedido_id=pedido.id, _external=True)
+                    },
+                    "external_reference": str(pedido.id)
+                }
+                
+                print(f"📦 Dados da preferência: {preference_data}")
+                
+                preference_response = sdk.preference().create(preference_data)
+                
+                print(f"📥 Resposta completa do MP: {preference_response}")
+                
+                # Verificar se a resposta tem o formato esperado
+                if "response" in preference_response:
+                    preference = preference_response["response"]
+                elif "id" in preference_response:
+                    preference = preference_response
+                else:
+                    raise Exception(f"Formato de resposta inesperado: {preference_response}")
+                
+                # Salvar preference_id no pedido
+                pedido.preference_id = preference["id"]
+                db.session.commit()
+                
+                # Obter URL de checkout
+                init_point = preference.get("init_point") or preference.get("sandbox_init_point")
+                
+                print(f"✅ Preferência criada! ID: {preference['id']}")
+                print(f"🔗 Redirecionando para: {init_point}")
+                
+                # Redirecionar para o checkout do Mercado Pago
+                return redirect(init_point)
+                
+            except Exception as e:
+                print(f"❌ Erro ao criar preferência: {e}")
+                print(f"🔍 Tipo do erro: {type(e)}")
+                import traceback
+                traceback.print_exc()
+                flash('Erro ao processar pagamento. Entre em contato conosco.', 'error')
+                return redirect(url_for('index'))
+        else:
+            # Sem Mercado Pago configurado
+            print("⚠️ MERCADO PAGO NÃO CONFIGURADO - Configure MERCADOPAGO_ACCESS_TOKEN")
+            flash('Pedido realizado! Como o pagamento online não está configurado, entraremos em contato para combinar a forma de pagamento.', 'success')
+            return redirect(url_for('index'))
     
     return render_template('finalizar_compra.html')
+
+# Rotas de retorno do pagamento
+@app.route('/pagamento/sucesso/<int:pedido_id>')
+def pagamento_sucesso(pedido_id):
+    pedido = Pedido.query.get_or_404(pedido_id)
+    pedido.status_pagamento = 'Aprovado'
+    pedido.status = 'Confirmado'
+    db.session.commit()
+    return render_template('pagamento_resultado.html', status='sucesso', pedido=pedido)
+
+@app.route('/pagamento/falha/<int:pedido_id>')
+def pagamento_falha(pedido_id):
+    pedido = Pedido.query.get_or_404(pedido_id)
+    pedido.status_pagamento = 'Rejeitado'
+    db.session.commit()
+    return render_template('pagamento_resultado.html', status='falha', pedido=pedido)
+
+@app.route('/pagamento/pendente/<int:pedido_id>')
+def pagamento_pendente(pedido_id):
+    pedido = Pedido.query.get_or_404(pedido_id)
+    pedido.status_pagamento = 'Pendente'
+    db.session.commit()
+    return render_template('pagamento_resultado.html', status='pendente', pedido=pedido)
+
+# Webhook do Mercado Pago
+@app.route('/webhook/mercadopago', methods=['POST'])
+def webhook_mercadopago():
+    try:
+        data = request.get_json()
+        
+        if data.get('type') == 'payment':
+            payment_id = data['data']['id']
+            
+            # Buscar informações do pagamento
+            payment_info = sdk.payment().get(payment_id)
+            payment = payment_info["response"]
+            
+            # Buscar pedido pela external_reference
+            pedido_id = payment.get('external_reference')
+            if pedido_id:
+                pedido = Pedido.query.get(int(pedido_id))
+                if pedido:
+                    pedido.payment_id = str(payment_id)
+                    
+                    # Atualizar status baseado no status do pagamento
+                    if payment['status'] == 'approved':
+                        pedido.status_pagamento = 'Aprovado'
+                        pedido.status = 'Confirmado'
+                    elif payment['status'] == 'rejected':
+                        pedido.status_pagamento = 'Rejeitado'
+                    else:
+                        pedido.status_pagamento = 'Pendente'
+                    
+                    db.session.commit()
+        
+        return jsonify({'status': 'ok'}), 200
+    except Exception as e:
+        print(f"Erro no webhook: {e}")
+        return jsonify({'status': 'error'}), 500
 
 # CRUD ADMIN - PRODUTOS
 @app.route('/admin/produtos')

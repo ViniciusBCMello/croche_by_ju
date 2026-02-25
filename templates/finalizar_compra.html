@@ -93,8 +93,7 @@
         }
 
         .form-group input,
-        .form-group textarea,
-        .form-group select {
+        .form-group textarea {
             width: 100%;
             padding: 12px 15px;
             border: 2px solid #e6d5f0;
@@ -105,8 +104,7 @@
         }
 
         .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
+        .form-group textarea:focus {
             outline: none;
             border-color: #b19cd9;
         }
@@ -162,6 +160,7 @@
             transition: all 0.3s;
             text-align: center;
             text-decoration: none;
+            display: inline-block;
         }
 
         .btn-primary {
@@ -169,9 +168,14 @@
             color: white;
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(177, 156, 217, 0.5);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .btn-secondary {
@@ -200,10 +204,6 @@
             background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
-        }
-
-        .carrinho-itens {
-            display: none;
         }
 
         footer {
@@ -238,16 +238,11 @@
             <p>Complete os dados para receber seu produto</p>
         </div>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
         <div class="checkout-card">
-            <form method="POST" action="/finalizar-compra">
+            <form method="POST" action="/finalizar-compra" id="formCheckout">
+                <input type="hidden" name="produto_id" id="hidden_produto_id" value="">
+                <input type="hidden" name="quantidade" id="hidden_quantidade" value="">
+
                 <div class="form-section">
                     <h2>📋 Dados Pessoais</h2>
                     
@@ -276,31 +271,19 @@
                     </div>
                 </div>
 
-                <div class="form-section">
-                    <h2>🧶 Produto Selecionado</h2>
-                    
-                    <div class="form-group">
-                        <label for="produto_id">Produto *</label>
-                        <select id="produto_id" name="produto_id" required onchange="atualizarResumo()">
-                            <option value="">Selecione um produto</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="quantidade">Quantidade *</label>
-                        <input type="number" id="quantidade" name="quantidade" value="1" min="1" required onchange="atualizarResumo()">
-                    </div>
-                </div>
-
-                <div class="resumo-pedido">
+                <div class="resumo-pedido" id="resumo-produto">
                     <h3>💰 Resumo do Pedido</h3>
+                    <div class="resumo-item">
+                        <span>Produto:</span>
+                        <span id="produto-nome">Carregando...</span>
+                    </div>
+                    <div class="resumo-item">
+                        <span>Quantidade:</span>
+                        <span id="produto-quantidade">1</span>
+                    </div>
                     <div class="resumo-item">
                         <span>Subtotal:</span>
                         <span id="subtotal">R$ 0,00</span>
-                    </div>
-                    <div class="resumo-item">
-                        <span>Frete:</span>
-                        <span>A calcular</span>
                     </div>
                     <div class="resumo-item">
                         <span>Total:</span>
@@ -310,7 +293,7 @@
 
                 <div class="btn-container">
                     <a href="/produtos" class="btn btn-secondary">Continuar Comprando</a>
-                    <button type="submit" class="btn btn-primary">Confirmar Pedido</button>
+                    <button type="submit" class="btn btn-primary" id="btnSubmit">Ir para Pagamento</button>
                 </div>
             </form>
         </div>
@@ -322,39 +305,71 @@
     </footer>
 
     <script>
-        // Simula carregamento de produtos (em produção, virá do backend)
-        const produtos = [];
-
-        function atualizarResumo() {
-            const produtoSelect = document.getElementById('produto_id');
-            const quantidade = parseInt(document.getElementById('quantidade').value) || 1;
-            
-            if (produtoSelect.value && produtos.length > 0) {
-                const produtoSelecionado = produtos.find(p => p.id == produtoSelect.value);
-                if (produtoSelecionado) {
-                    const subtotal = produtoSelecionado.preco * quantidade;
-                    document.getElementById('subtotal').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
-                    document.getElementById('total').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
-                }
-            }
-        }
-
-        // Carregar produtos (simulado - em produção virá de uma API)
+        // Carregar dados do produto via URL
         window.addEventListener('DOMContentLoaded', function() {
-            // Aqui você faria uma requisição para buscar os produtos
+            const urlParams = new URLSearchParams(window.location.search);
+            const produtoId = urlParams.get('produto_id');
+            const quantidade = urlParams.get('quantidade') || 1;
+            
+            console.log('Produto ID:', produtoId);
+            console.log('Quantidade:', quantidade);
+            
+            if (!produtoId) {
+                alert('Nenhum produto selecionado! Redirecionando...');
+                window.location.href = '/produtos';
+                return;
+            }
+            
+            // Atualizar campos hidden
+            document.getElementById('hidden_produto_id').value = produtoId;
+            document.getElementById('hidden_quantidade').value = quantidade;
+            document.getElementById('produto-quantidade').textContent = quantidade;
+            
+            // Buscar informações do produto
             fetch('/api/produtos')
-                .then(response => response.json())
-                .then(data => {
-                    produtos.push(...data);
-                    const select = document.getElementById('produto_id');
-                    data.forEach(produto => {
-                        const option = document.createElement('option');
-                        option.value = produto.id;
-                        option.textContent = `${produto.nome} - R$ ${produto.preco.toFixed(2)}`;
-                        select.appendChild(option);
-                    });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao buscar produtos');
+                    }
+                    return response.json();
                 })
-                .catch(error => console.error('Erro ao carregar produtos:', error));
+                .then(produtos => {
+                    console.log('Produtos recebidos:', produtos);
+                    const produto = produtos.find(p => p.id == produtoId);
+                    
+                    if (produto) {
+                        const subtotal = produto.preco * quantidade;
+                        document.getElementById('produto-nome').textContent = produto.nome;
+                        document.getElementById('subtotal').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+                        document.getElementById('total').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+                    } else {
+                        alert('Produto não encontrado!');
+                        window.location.href = '/produtos';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar produto:', error);
+                    alert('Erro ao carregar produto! Verifique sua conexão.');
+                    document.getElementById('produto-nome').textContent = 'Erro ao carregar';
+                });
+        });
+        
+        // Adicionar loading no botão ao enviar
+        document.getElementById('formCheckout').addEventListener('submit', function(e) {
+            const btn = document.getElementById('btnSubmit');
+            
+            // Verificar se os campos hidden estão preenchidos
+            const produtoId = document.getElementById('hidden_produto_id').value;
+            const quantidade = document.getElementById('hidden_quantidade').value;
+            
+            if (!produtoId || !quantidade) {
+                e.preventDefault();
+                alert('Erro: Produto não identificado. Tente novamente.');
+                return false;
+            }
+            
+            btn.textContent = '⏳ Processando...';
+            btn.disabled = true;
         });
     </script>
 </body>

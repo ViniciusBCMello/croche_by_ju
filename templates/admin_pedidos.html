@@ -521,6 +521,7 @@
                         <th>Produto</th>
                         <th>Quantidade</th>
                         <th>Total</th>
+                        <th>Pagamento</th>
                         <th>Status</th>
                         <th>Ações</th>
                     </tr>
@@ -542,6 +543,15 @@
                         <td>{{ pedido.produto.nome if pedido.produto else 'N/A' }}</td>
                         <td>{{ pedido.quantidade }}</td>
                         <td><strong style="color: #b19cd9;">R$ {{ "%.2f"|format(pedido.total) }}</strong></td>
+                        <td>
+                            {% if pedido.status_pagamento == 'Aprovado' %}
+                                <span class="badge badge-success">✓ Pago</span>
+                            {% elif pedido.status_pagamento == 'Rejeitado' %}
+                                <span class="badge badge-danger">✗ Rejeitado</span>
+                            {% else %}
+                                <span class="badge badge-warning">⏳ Pendente</span>
+                            {% endif %}
+                        </td>
                         <td>
                             <span class="badge badge-{{ pedido.status.lower() }}">{{ pedido.status }}</span>
                         </td>
@@ -591,7 +601,7 @@
     </div>
 
     <footer>
-        <p>&copy; 2024 Croche by Ju - Todos os direitos reservados</p>
+        <p>&copy; 2026 Croche by Ju - Todos os direitos reservados</p>
         <p>Feito com ❤️ e muitos pontos de crochê</p>
     </footer>
 

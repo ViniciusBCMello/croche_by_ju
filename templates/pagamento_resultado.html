@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado do Pagamento - Croche by Ju</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #e6d5f0 0%, #d0e8f2 50%, #f5e8d0 100%);
+            color: #5a4a6a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 2em;
+            color: #b19cd9;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .logo::before {
+            content: "🧶 ";
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 80px auto;
+            padding: 0 20px;
+            flex-grow: 1;
+        }
+
+        .resultado-card {
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .icone {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+
+        .icone.sucesso {
+            color: #4CAF50;
+        }
+
+        .icone.falha {
+            color: #f44336;
+        }
+
+        .icone.pendente {
+            color: #FF9800;
+        }
+
+        h1 {
+            font-size: 2em;
+            color: #5a4a6a;
+            margin-bottom: 20px;
+        }
+
+        .mensagem {
+            font-size: 1.1em;
+            color: #6a5a7a;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .detalhes-pedido {
+            background: #f8f4fb;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .detalhes-pedido h3 {
+            color: #b19cd9;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .detalhe-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e6d5f0;
+        }
+
+        .detalhe-item:last-child {
+            border-bottom: none;
+        }
+
+        .detalhe-label {
+            color: #7a6a8a;
+            font-weight: 600;
+        }
+
+        .detalhe-valor {
+            color: #5a4a6a;
+            font-weight: bold;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 35px;
+            background: linear-gradient(135deg, #b19cd9, #9bc4d9);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(177, 156, 217, 0.5);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #5a4a6a;
+            border: 2px solid #b19cd9;
+        }
+
+        .btn-secondary:hover {
+            background: #f8f4fb;
+        }
+
+        footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px 20px;
+            margin-top: auto;
+            text-align: center;
+            color: #5a4a6a;
+        }
+
+        .proximo-passo {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid #FF9800;
+            margin: 20px 0;
+        }
+
+        .proximo-passo h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .proximo-passo p {
+            color: #856404;
+            margin: 5px 0;
+        }
+
+        @media (max-width: 768px) {
+            .resultado-card {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .icone {
+                font-size: 3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="logo">Croche by Ju</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="resultado-card">
+            {% if status == 'sucesso' %}
+                <div class="icone sucesso">✅</div>
+                <h1>Pagamento Aprovado!</h1>
+                <p class="mensagem">
+                    Seu pagamento foi aprovado com sucesso! Já começamos a preparar sua encomenda com muito carinho. 
+                    Você receberá um e-mail com os detalhes do pedido e atualizações sobre o andamento da produção.
+                </p>
+
+                <div class="detalhes-pedido">
+                    <h3>📋 Detalhes do Pedido</h3>
+                    <div class="detalhe-item">
+                        <span class="detalhe-label">Pedido Nº:</span>
+                        <span class="detalhe-valor">#{{ "%04d"|format(pedido.id) }}</span>
+                    </div>
+                    <div class="detalhe-item">
+                        <span class="detalhe-label">Produto:</span>
+                        <span class="detalhe-valor">{{ pedido.produto.nome }}</span>
+                    </div>
+                    <div class="detalhe-item">
+                        <span class="detalhe-label">Quantidade:</span>
+                        <span class="detalhe-valor">{{ pedido.quantidade }}</span>
+                    </div>
+                    <div class="detalhe-item">
+                        <span class="detalhe-label">Total Pago:</span>
+                        <span class="detalhe-valor" style="color: #4CAF50;">R$ {{ "%.2f"|format(pedido.total) }}</span>
+                    </div>
+                    <div class="detalhe-item">
+                        <span class="detalhe-label">Prazo de Produção:</span>
+                        <span class="detalhe-valor">{{ pedido.produto.prazo_dias }} dias úteis</span>
+                    </div>
+                </div>
+
+                <div class="proximo-passo">
+                    <h4>🎉 Próximos Passos:</h4>
+                    <p>✓ Você receberá um e-mail de confirmação</p>
+                    <p>✓ Iniciaremos a produção da sua peça</p>
+                    <p>✓ Enviaremos atualizações por e-mail e WhatsApp</p>
+                    <p>✓ Após a conclusão, enviaremos seu pedido</p>
+                </div>
+
+            {% elif status == 'pendente' %}
+                <div class="icone pendente">⏳</div>
+                <h1>Pagamento Pendente</h1>
+                <p class="mensagem">
+                    Seu pagamento está sendo processado. Assim que for aprovado, começaremos a preparar sua encomenda.
+                    Você receberá uma confirmação por e-mail quando o pagamento for aprovado.
+                </p>
+
+                <div class="detalhes-pedido">
+                    <h3>📋 Detalhes do Pedido</h3>
+                    <div class="detalhe-item">
+                        <span class="detalhe-label">Pedido Nº:</span>
+                        <span class="detalhe-valor">#{{ "%04d"|format(pedido.id) }}</span>
+                    </div>
+                    <div class="detalhe-item">
+                        <span class="detalhe-label">Status:</span>
+                        <span class="detalhe-valor" style="color: #FF9800;">Aguardando Pagamento</span>
+                    </div>
+                    <div class="detalhe-item">
+                        <span class="detalhe-label">Total:</span>
+                        <span class="detalhe-valor">R$ {{ "%.2f"|format(pedido.total) }}</span>
+                    </div>
+                </div>
+
+            {% elif status == 'falha' %}
+                <div class="icone falha">❌</div>
+                <h1>Pagamento Não Aprovado</h1>
+                <p class="mensagem">
+                    Infelizmente seu pagamento não foi aprovado. Isso pode acontecer por vários motivos, como limite do cartão, 
+                    dados incorretos ou problemas com a operadora. Não se preocupe, você pode tentar novamente!
+                </p>
+
+                <div class="detalhes-pedido">
+                    <h3>📋 O que fazer agora?</h3>
+                    <p style="padding: 15px; color: #6a5a7a; line-height: 1.8;">
+                        • Verifique os dados do seu cartão<br>
+                        • Verifique seu limite disponível<br>
+                        • Tente outro método de pagamento<br>
+                        • Entre em contato conosco para outras opções
+                    </p>
+                </div>
+            {% endif %}
+
+            <div style="margin-top: 40px;">
+                <a href="/" class="btn">Voltar para Início</a>
+                <a href="/produtos" class="btn btn-secondary">Ver Outros Produtos</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Croche by Ju - Todos os direitos reservados</p>
+        <p>Feito com ❤️ e muitos pontos de crochê</p>
+    </footer>
+</body>
+</html>
