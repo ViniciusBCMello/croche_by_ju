@@ -316,6 +316,75 @@
             font-size: 1.3em;
         }
 
+        .btn-add-cart {
+            width: 100%;
+            padding: 18px 30px;
+            background: white;
+            color: #b19cd9;
+            border: 2px solid #b19cd9;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 12px;
+            font-family: 'Georgia', serif;
+        }
+
+        .btn-add-cart:hover {
+            background: #f8f4fb;
+            transform: translateY(-2px);
+        }
+
+        .cart-feedback {
+            display: none;
+            text-align: center;
+            padding: 12px;
+            background: #d4edda;
+            color: #155724;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 0.95em;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .nav-cart-btn {
+            position: relative;
+            background: linear-gradient(135deg, #b19cd9, #9bc4d9);
+            color: white !important;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold !important;
+            transition: all 0.3s !important;
+        }
+
+        .nav-cart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(177,156,217,0.4);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff6b9d;
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 0.72em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+
         .btn-voltar {
             display: inline-flex;
             align-items: center;
@@ -366,7 +435,15 @@
             <ul>
                 <li><a href="/">Início</a></li>
                 <li><a href="/produtos">Produtos</a></li>
+                {% if session.get("admin_logged_in") %}
                 <li><a href="/admin/produtos">Admin</a></li>
+                {% endif %}
+                <li>
+                    <a href="/carrinho" class="nav-cart-btn">
+                        🛒 Carrinho
+                        <span class="cart-badge" id="navCartCount" style="display:none">0</span>
+                    </a>
+                </li>
             </ul>
         </nav>
     </header>
@@ -426,7 +503,9 @@
                 </div>
 
                 {% if produto.disponivel %}
-                    <button type="button" class="btn-comprar" onclick="comprar()">🛒 Encomendar Agora</button>
+                    <button type="button" class="btn-comprar" onclick="comprar()">🛒 Comprar Agora</button>
+                    <button type="button" class="btn-add-cart" onclick="adicionarCarrinho()">🧶 Adicionar ao Carrinho</button>
+                    <div class="cart-feedback" id="cart-feedback">✅ Produto adicionado ao carrinho!</div>
                 {% else %}
                     <button type="button" class="btn-comprar" disabled>Produto Indisponível</button>
                 {% endif %}
@@ -465,27 +544,75 @@
     <script>
         const produtoId = {{ produto.id }};
         const produtoPreco = {{ produto.preco }};
+        const produtoNome = {{ produto.nome | tojson }};
+        const produtoCategoria = {{ (produto.categoria or '') | tojson }};
+        const produtoImagem = {{ (produto.imagem_url or '') | tojson }};
 
         function aumentar() {
             const input = document.getElementById('quantidade');
             const atual = parseInt(input.value);
-            if (atual < 99) {
-                input.value = atual + 1;
-            }
+            if (atual < 99) input.value = atual + 1;
         }
 
         function diminuir() {
             const input = document.getElementById('quantidade');
             const atual = parseInt(input.value);
-            if (atual > 1) {
-                input.value = atual - 1;
-            }
+            if (atual > 1) input.value = atual - 1;
         }
 
         function comprar() {
             const quantidade = document.getElementById('quantidade').value;
             window.location.href = `/finalizar-compra?produto_id=${produtoId}&quantidade=${quantidade}`;
         }
+
+        // ── Cart helpers ──
+        function getCart() {
+            try { return JSON.parse(localStorage.getItem('croche_cart') || '[]'); }
+            catch { return []; }
+        }
+
+        function saveCart(cart) {
+            localStorage.setItem('croche_cart', JSON.stringify(cart));
+            updateNavBadge();
+        }
+
+        function updateNavBadge() {
+            const cart = getCart();
+            const total = cart.reduce((s, i) => s + i.quantidade, 0);
+            const badge = document.getElementById('navCartCount');
+            if (badge) {
+                badge.textContent = total;
+                badge.style.display = total > 0 ? 'flex' : 'none';
+            }
+        }
+
+        function adicionarCarrinho() {
+            const quantidade = parseInt(document.getElementById('quantidade').value);
+            const cart = getCart();
+            const existing = cart.find(i => i.id == produtoId);
+
+            if (existing) {
+                existing.quantidade += quantidade;
+            } else {
+                cart.push({
+                    id: produtoId,
+                    nome: produtoNome,
+                    preco: produtoPreco,
+                    quantidade: quantidade,
+                    categoria: produtoCategoria,
+                    imagem_url: produtoImagem
+                });
+            }
+
+            saveCart(cart);
+
+            // Feedback visual
+            const feedback = document.getElementById('cart-feedback');
+            feedback.style.display = 'block';
+            setTimeout(() => { feedback.style.display = 'none'; }, 3000);
+        }
+
+        updateNavBadge();
     </script>
 </body>
 </html>

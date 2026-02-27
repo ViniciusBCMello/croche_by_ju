@@ -67,6 +67,39 @@
             color: #b19cd9;
         }
 
+        .nav-cart-btn {
+            position: relative;
+            background: linear-gradient(135deg, #b19cd9, #9bc4d9);
+            color: white !important;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold !important;
+            transition: all 0.3s !important;
+        }
+
+        .nav-cart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(177,156,217,0.4);
+            color: white !important;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff6b9d;
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 0.72em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+
         .hero {
             max-width: 1200px;
             margin: 60px auto;
@@ -262,7 +295,15 @@
             <ul>
                 <li><a href="/">Início</a></li>
                 <li><a href="/produtos">Produtos</a></li>
+                {% if session.get("admin_logged_in") %}
                 <li><a href="/admin/produtos">Admin</a></li>
+                {% endif %}
+                <li>
+                    <a href="/carrinho" class="nav-cart-btn">
+                        🛒 Carrinho
+                        <span class="cart-badge" id="navCartCount" style="display:none">0</span>
+                    </a>
+                </li>
             </ul>
         </nav>
     </header>
@@ -317,5 +358,19 @@
         <p>&copy; 2026 Croche by Ju - Todos os direitos reservados</p>
         <p>Feito com ❤️ e muitos pontos de crochê</p>
     </footer>
+    <script>
+        function updateNavBadge() {
+            try {
+                const cart = JSON.parse(localStorage.getItem('croche_cart') || '[]');
+                const total = cart.reduce((s, i) => s + i.quantidade, 0);
+                const badge = document.getElementById('navCartCount');
+                if (badge) {
+                    badge.textContent = total;
+                    badge.style.display = total > 0 ? 'flex' : 'none';
+                }
+            } catch(e) {}
+        }
+        updateNavBadge();
+    </script>
 </body>
 </html>

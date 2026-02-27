@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alterar Senha - Admin Croche by Ju</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #e6d5f0 0%, #d0e8f2 50%, #f5e8d0 100%);
+            color: #5a4a6a;
+            min-height: 100vh;
+        }
+
+        header {
+            background: rgba(255,255,255,0.95);
+            padding: 18px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            color: #b19cd9;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .logo::before { content: "🧶 "; }
+
+        .nav-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 0.9em;
+            color: #7a6a8a;
+        }
+
+        .nav-info a {
+            color: #b19cd9;
+            text-decoration: none;
+        }
+
+        .nav-info a:hover { text-decoration: underline; }
+
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .card-header .icon { font-size: 2.5em; margin-bottom: 10px; display: block; }
+
+        .card-header h1 {
+            font-size: 1.7em;
+            color: #5a4a6a;
+            margin-bottom: 6px;
+        }
+
+        .card-header p { color: #9a8aaa; font-size: 0.9em; }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.92em;
+        }
+
+        .alert-error { background: #fdf0f2; color: #b53a4e; border: 1px solid #f5c6cb; }
+        .alert-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+
+        .form-group { margin-bottom: 20px; }
+
+        .form-group label {
+            display: block;
+            color: #5a4a6a;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e6d5f0;
+            border-radius: 12px;
+            font-family: 'Georgia', serif;
+            font-size: 1em;
+            color: #5a4a6a;
+            transition: border-color 0.3s;
+            background: #fdfbff;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #b19cd9;
+            box-shadow: 0 0 0 4px rgba(177, 156, 217, 0.12);
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid #f0e8f5;
+            margin: 25px 0;
+        }
+
+        .btn-salvar {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #b19cd9, #9bc4d9);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Georgia', serif;
+            font-size: 1.05em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 12px;
+        }
+
+        .btn-salvar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(177, 156, 217, 0.4);
+        }
+
+        .btn-cancelar {
+            display: block;
+            width: 100%;
+            padding: 13px;
+            background: white;
+            color: #5a4a6a;
+            border: 2px solid #e6d5f0;
+            border-radius: 50px;
+            font-family: 'Georgia', serif;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-cancelar:hover { background: #fdf9ff; border-color: #b19cd9; }
+
+        footer {
+            background: rgba(255,255,255,0.95);
+            padding: 30px 20px;
+            margin-top: 80px;
+            text-align: center;
+            color: #7a6a8a;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="logo">Croche by Ju</a>
+            <div class="nav-info">
+                <span>👤 {{ session.get('admin_username') }}</span>
+                <a href="/admin/produtos">← Painel</a>
+                <a href="/admin/logout">Sair</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="card">
+            <div class="card-header">
+                <span class="icon">🔐</span>
+                <h1>Alterar Senha</h1>
+                <p>Mantenha sua conta segura com uma senha forte</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endwith %}
+
+            <form method="POST">
+                <div class="form-group">
+                    <label for="senha_atual">Senha Atual</label>
+                    <input type="password" id="senha_atual" name="senha_atual" required placeholder="••••••••">
+                </div>
+
+                <hr class="divider">
+
+                <div class="form-group">
+                    <label for="nova_senha">Nova Senha</label>
+                    <input type="password" id="nova_senha" name="nova_senha" required
+                           placeholder="Mínimo 6 caracteres" minlength="6"
+                           oninput="verificarSenha()">
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmar_senha">Confirmar Nova Senha</label>
+                    <input type="password" id="confirmar_senha" name="confirmar_senha" required
+                           placeholder="Repita a nova senha"
+                           oninput="verificarSenha()">
+                    <small id="senha-feedback" style="font-size:0.85em; margin-top:6px; display:block; color:#9a8aaa;"></small>
+                </div>
+
+                <button type="submit" class="btn-salvar">💾 Salvar Nova Senha</button>
+                <a href="/admin/produtos" class="btn-cancelar">Cancelar</a>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Croche by Ju — Painel Administrativo</p>
+    </footer>
+
+    <script>
+        function verificarSenha() {
+            const nova = document.getElementById('nova_senha').value;
+            const confirmar = document.getElementById('confirmar_senha').value;
+            const feedback = document.getElementById('senha-feedback');
+
+            if (!confirmar) { feedback.textContent = ''; return; }
+
+            if (nova === confirmar) {
+                feedback.textContent = '✅ As senhas coincidem';
+                feedback.style.color = '#166534';
+            } else {
+                feedback.textContent = '❌ As senhas não coincidem';
+                feedback.style.color = '#b53a4e';
+            }
+        }
+    </script>
+</body>
+</html>

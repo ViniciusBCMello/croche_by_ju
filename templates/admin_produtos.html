@@ -245,8 +245,12 @@
             <ul>
                 <li><a href="/">Início</a></li>
                 <li><a href="/produtos">Produtos</a></li>
+                {% if session.get("admin_logged_in") %}
                 <li><a href="/admin/produtos">Admin</a></li>
+                {% endif %}
+                {% if session.get("admin_logged_in") %}
                 <li><a href="/admin/pedidos">Pedidos</a></li>
+                {% endif %}
             </ul>
         </nav>
     </header>

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Produtos - Croche by Ju</title>
     <style>
+        /* Base e Reset */
         * {
             margin: 0;
             padding: 0;
@@ -18,6 +19,7 @@
             min-height: 100vh;
         }
 
+        /* Header e Nav */
         header {
             background: rgba(255, 255, 255, 0.95);
             padding: 20px 0;
@@ -46,10 +48,7 @@
             gap: 10px;
         }
 
-        .logo::before {
-            content: "🧶";
-            font-size: 1.2em;
-        }
+        .logo::before { content: "🧶"; font-size: 1.2em; }
 
         nav ul {
             display: flex;
@@ -64,10 +63,35 @@
             transition: color 0.3s;
         }
 
-        nav a:hover {
-            color: #b19cd9;
+        nav a:hover { color: #b19cd9; }
+
+        .nav-cart-btn {
+            position: relative;
+            background: linear-gradient(135deg, #b19cd9, #9bc4d9);
+            color: white !important;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold !important;
         }
 
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff6b9d;
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 0.72em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+
+        /* Container Principal */
         .container {
             max-width: 1200px;
             margin: 40px auto;
@@ -85,6 +109,7 @@
             margin-bottom: 10px;
         }
 
+        /* Filtros */
         .filtros {
             background: white;
             padding: 20px;
@@ -93,15 +118,11 @@
             box-shadow: 0 3px 15px rgba(0,0,0,0.1);
         }
 
-        .filtros h3 {
-            color: #5a4a6a;
-            margin-bottom: 15px;
-        }
-
         .categorias {
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
+            margin-top: 10px;
         }
 
         .categoria-btn {
@@ -120,39 +141,49 @@
             color: white;
         }
 
+        /* Grid de Produtos */
         .produtos-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 30px;
             margin-bottom: 40px;
         }
 
+        /* Card de Produto Reformulado */
         .produto-card {
             background: white;
-            border-radius: 20px;
+            border-radius: 24px;
             overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-            text-decoration: none;
-            color: inherit;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
             display: flex;
             flex-direction: column;
+            border: 1px solid #f0e8f5;
         }
 
         .produto-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(177, 156, 217, 0.3);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(177, 156, 217, 0.2);
         }
 
+        /* Área da Imagem/Banner */
         .produto-img {
             width: 100%;
-            height: 250px;
-            background: linear-gradient(135deg, #e6d5f0, #d0e8f2);
+            height: 240px;
+            background: linear-gradient(180deg, #e6d5f0 0%, #d0e8f2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4em;
+            padding: 20px;
+            text-align: center;
             position: relative;
+        }
+
+        .produto-img h2 {
+            font-size: 2.2em;
+            color: #5a4a6a;
+            line-height: 1.1;
+            font-family: 'Georgia', serif;
         }
 
         .produto-img img {
@@ -161,106 +192,102 @@
             object-fit: cover;
         }
 
-        .estoque-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #4CAF50;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.3em;
-            font-weight: bold;
-        }
-
-        .estoque-badge.prazo-medio {
-            background: #FF9800;
-        }
-
-        .estoque-badge.prazo-longo {
-            background: #9bc4d9;
-        }
-
-        .estoque-badge.indisponivel {
-            background: #f44336;
-        }
-
+        /* Info e Tipografia */
         .produto-info {
-            padding: 20px;
-            flex-grow: 1;
+            padding: 24px;
             display: flex;
             flex-direction: column;
+            gap: 12px;
+            flex-grow: 1;
         }
 
         .produto-categoria {
             color: #9bc4d9;
-            font-size: 0.9em;
-            margin-bottom: 8px;
+            font-size: 0.85em;
+            font-weight: 800;
             text-transform: uppercase;
-            font-weight: 600;
+            letter-spacing: 1px;
         }
 
         .produto-info h3 {
             color: #5a4a6a;
-            margin-bottom: 10px;
-            font-size: 1.3em;
+            font-size: 1.5em;
+            margin: 0;
+            line-height: 1.2;
         }
 
         .produto-info p {
-            color: #7a6a8a;
-            margin-bottom: 15px;
-            flex-grow: 1;
+            color: #8a7a9a;
+            font-size: 0.95em;
             line-height: 1.5;
-        }
-
-        .produto-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 15px;
-            border-top: 1px solid #e6d5f0;
+            margin: 0;
         }
 
         .preco {
-            font-size: 1.5em;
+            font-size: 1.8em;
             color: #b19cd9;
             font-weight: bold;
+            margin: 10px 0;
         }
 
-        .btn-comprar {
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #b19cd9, #9bc4d9);
+        /* Botões de Ação */
+        .produto-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: auto;
+        }
+
+        .btn-cart-quick {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, #b19cd9, #9bc4d9);
             color: white;
-            text-decoration: none;
-            border-radius: 25px;
-            font-weight: bold;
-            transition: all 0.3s;
             border: none;
+            border-radius: 50px;
+            font-weight: bold;
             cursor: pointer;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: opacity 0.3s;
         }
 
-        .btn-comprar:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(177, 156, 217, 0.4);
-        }
+        .btn-cart-quick:hover { opacity: 0.9; }
 
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
+        .btn-detalhes {
+            width: 100%;
+            padding: 12px;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-
-        .empty-state h2 {
             color: #b19cd9;
-            margin-bottom: 15px;
+            border: 2px solid #b19cd9;
+            border-radius: 50px;
+            text-decoration: none;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1em;
+            transition: all 0.3s;
         }
 
-        .empty-state p {
-            color: #7a6a8a;
-            font-size: 1.1em;
+        .btn-detalhes:hover { background: #f8f4fb; }
+
+        /* Badge de Estoque */
+        .estoque-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #4CAF50;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: bold;
+            z-index: 10;
         }
+
+        .estoque-badge.indisponivel { background: #f44336; }
 
         footer {
             background: rgba(255, 255, 255, 0.95);
@@ -270,14 +297,17 @@
             color: #5a4a6a;
         }
 
-        @media (max-width: 768px) {
-            .produtos-grid {
-                grid-template-columns: 1fr;
-            }
+        /* Toast de Feedback */
+        #toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: #5a4a6a; color: white; padding: 14px 24px; border-radius: 50px;
+            font-family: Georgia, serif; font-size: 0.95em; z-index: 9999; opacity: 0;
+            transition: all 0.3s ease; pointer-events: none;
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-            .categorias {
-                justify-content: center;
-            }
+        @media (max-width: 768px) {
+            .produtos-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -288,7 +318,15 @@
             <ul>
                 <li><a href="/">Início</a></li>
                 <li><a href="/produtos">Produtos</a></li>
+                {% if session.get("admin_logged_in") %}
                 <li><a href="/admin/produtos">Admin</a></li>
+                {% endif %}
+                <li>
+                    <a href="/carrinho" class="nav-cart-btn">
+                        🛒 Carrinho
+                        <span class="cart-badge" id="navCartCount" style="display:none">0</span>
+                    </a>
+                </li>
             </ul>
         </nav>
     </header>
@@ -311,54 +349,91 @@
             </div>
         </div>
 
-        {% if produtos %}
         <div class="produtos-grid">
-            {% for produto in produtos %}
-            <a href="/produto/{{ produto.id }}" class="produto-card">
-                <div class="produto-img">
-                    {% if produto.imagem_url %}
-                        <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}">
-                    {% else %}
-                        🧶
-                    {% endif %}
-                    
-                    {% if not produto.disponivel %}
-                        <span class="estoque-badge indisponivel">Indisponível</span>
-                    {% elif produto.prazo_dias <= 7 %}
-                        <span class="estoque-badge">{{ produto.prazo_dias }} dias</span>
-                    {% elif produto.prazo_dias <= 15 %}
-                        <span class="estoque-badge prazo-medio">{{ produto.prazo_dias }} dias</span>
-                    {% else %}
-                        <span class="estoque-badge prazo-longo">{{ produto.prazo_dias }} dias</span>
-                    {% endif %}
-                </div>
-                <div class="produto-info">
-                    {% if produto.categoria %}
-                    <div class="produto-categoria">{{ produto.categoria }}</div>
-                    {% endif %}
-                    <h3>{{ produto.nome }}</h3>
-                    <p>{{ produto.descricao }}</p>
-                    <div class="produto-footer">
+            {% if produtos %}
+                {% for produto in produtos %}
+                <div class="produto-card">
+                    <div class="produto-img">
+                        {% if not produto.disponivel %}
+                            <span class="estoque-badge indisponivel">Indisponível</span>
+                        {% endif %}
+
+                        {% if produto.imagem_url %}
+                            <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}">
+                        {% else %}
+                            <h2>{{ produto.nome }}</h2>
+                        {% endif %}
+                    </div>
+
+                    <div class="produto-info">
+                        <div class="produto-categoria">{{ produto.categoria or 'OUTROS' }}</div>
+                        <h3>{{ produto.nome }}</h3>
+                        <p>{{ produto.descricao }}</p>
+                        
                         <div class="preco">R$ {{ "%.2f"|format(produto.preco) }}</div>
-                        <span class="btn-comprar">Ver Detalhes</span>
+
+                        <div class="produto-actions">
+                            <button class="btn-cart-quick" onclick="addToCart({{ produto.id }}, '{{ produto.nome | replace("'", "\\'") }}', {{ produto.preco }}, '{{ produto.categoria or '' }}', '{{ produto.imagem_url or '' }}')">
+                                🧶 Adicionar ao Carrinho
+                            </button>
+                            <a href="/produto/{{ produto.id }}" class="btn-detalhes">Ver Detalhes</a>
+                        </div>
                     </div>
                 </div>
-            </a>
-            {% endfor %}
+                {% endfor %}
+            {% else %}
+                <div style="grid-column: 1/-1;" class="empty-state">
+                    <h2 style="text-align:center; padding: 50px; background: white; border-radius: 20px;">🧶 Nenhum produto encontrado</h2>
+                </div>
+            {% endif %}
         </div>
-        {% else %}
-        <div class="empty-state">
-            <h2>🧶 Nenhum produto encontrado</h2>
-            <p>Não há produtos disponíveis nesta categoria no momento.</p>
-            <br>
-            <a href="/produtos" class="btn-comprar">Ver Todos os Produtos</a>
-        </div>
-        {% endif %}
     </main>
 
     <footer>
         <p>&copy; 2026 Croche by Ju - Todos os direitos reservados</p>
         <p>Feito com ❤️ e muitos pontos de crochê</p>
     </footer>
+
+    <div id="toast"></div>
+
+    <script>
+        function getCart() {
+            try { return JSON.parse(localStorage.getItem('croche_cart') || '[]'); }
+            catch { return []; }
+        }
+
+        function saveCart(cart) {
+            localStorage.setItem('croche_cart', JSON.stringify(cart));
+            updateNavBadge();
+        }
+
+        function updateNavBadge() {
+            const cart = getCart();
+            const total = cart.reduce((s, i) => s + i.quantidade, 0);
+            const badge = document.getElementById('navCartCount');
+            if (badge) {
+                badge.textContent = total;
+                badge.style.display = total > 0 ? 'flex' : 'none';
+            }
+        }
+
+        function addToCart(id, nome, preco, categoria, imagem_url) {
+            const cart = getCart();
+            const existing = cart.find(i => i.id == id);
+            if (existing) {
+                existing.quantidade += 1;
+            } else {
+                cart.push({ id, nome, preco, quantidade: 1, categoria, imagem_url });
+            }
+            saveCart(cart);
+
+            const toast = document.getElementById('toast');
+            toast.textContent = `✅ "${nome}" adicionado!`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        updateNavBadge();
+    </script>
 </body>
 </html>
