@@ -611,16 +611,16 @@
             {% for pedido in pedidos %}
             {
                 id: {{ pedido.id }},
-                nome_cliente: "{{ pedido.nome_cliente }}",
-                email: "{{ pedido.email }}",
-                telefone: "{{ pedido.telefone }}",
-                endereco: "{{ pedido.endereco|replace('\n', ' ')|replace('"', '\\"') }}",
+                nome_cliente: {{ pedido.nome_cliente | tojson }},
+                email: {{ pedido.email | tojson }},
+                telefone: {{ pedido.telefone | tojson }},
+                endereco: {{ pedido.endereco | tojson }},
                 quantidade: {{ pedido.quantidade }},
                 total: {{ pedido.total }},
-                status: "{{ pedido.status }}",
-                data_pedido: "{{ pedido.data_pedido.strftime('%Y-%m-%d') }}",
+                status: {{ pedido.status | tojson }},
+                data_pedido: {{ pedido.data_pedido.strftime('%d/%m/%Y') | tojson }},
                 produto: {
-                    nome: "{{ pedido.produto.nome if pedido.produto else 'N/A' }}"
+                    nome: {{ (pedido.produto.nome if pedido.produto else 'N/A') | tojson }}
                 }
             }{% if not loop.last %},{% endif %}
             {% endfor %}
