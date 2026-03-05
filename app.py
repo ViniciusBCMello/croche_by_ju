@@ -316,17 +316,32 @@ def finalizar_compra():
 
         if sdk and MERCADOPAGO_ACCESS_TOKEN:
             try:
+                nome_partes  = nome.strip().split()
+                payer_first  = nome_partes[0]
+                payer_last   = " ".join(nome_partes[1:]) if len(nome_partes) > 1 else nome_partes[0]
                 preference_data = {
-                    "items": [{"title": produto.nome, "quantity": quantidade,
-                                "unit_price": float(produto.preco), "currency_id": "BRL"}],
-                    "payer": {"name": nome, "email": email},
+                    "items": [{
+                        "id": str(produto.id),
+                        "title": produto.nome,
+                        "description": produto.descricao[:255],
+                        "category_id": "handcraft",
+                        "quantity": quantidade,
+                        "unit_price": float(produto.preco),
+                        "currency_id": "BRL"
+                    }],
+                    "payer": {
+                        "name": payer_first, 
+                        "surname": payer_last, 
+                        "email": email
+                    },
                     "back_urls": {
                         "success": url_for('pagamento_sucesso', pedido_id=pedido.id, _external=True),
                         "failure": url_for('pagamento_falha', pedido_id=pedido.id, _external=True),
                         "pending": url_for('pagamento_pendente', pedido_id=pedido.id, _external=True)
                     },
                     "auto_return": "approved",
-                    "external_reference": str(pedido.id)
+                    "external_reference": str(pedido.id),
+                    "statement_descriptor": "CROCHE BY JU" #Aparece na fatura do cartão do comprador — reduz contestações
                 }
                 preference_response = sdk.preference().create(preference_data)
                 preference = preference_response.get("response", preference_response)

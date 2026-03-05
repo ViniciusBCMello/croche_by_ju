@@ -63,9 +63,7 @@
             transition: color 0.3s;
         }
 
-        nav a:hover {
-            color: #b19cd9;
-        }
+        nav a:hover { color: #b19cd9; }
 
         .nav-cart-btn {
             position: relative;
@@ -158,19 +156,16 @@
             background-clip: padding-box;
             position: relative;
         }
-        
+
         .brand-circle::before {
             content: '';
             position: absolute;
-            top: -8px;
-            left: -8px;
-            right: -8px;
-            bottom: -8px;
+            top: -8px; left: -8px; right: -8px; bottom: -8px;
             border-radius: 50%;
             background: linear-gradient(135deg, #b19cd9, #9bc4d9, #f5d98d);
             z-index: -1;
         }
-        
+
         .brand-circle img {
             width: 100%;
             height: 100%;
@@ -207,9 +202,7 @@
             color: inherit;
         }
 
-        .produto-card:hover {
-            transform: translateY(-10px);
-        }
+        .produto-card:hover { transform: translateY(-10px); }
 
         .produto-img {
             width: 100%;
@@ -221,19 +214,9 @@
             font-size: 4em;
         }
 
-        .produto-info {
-            padding: 20px;
-        }
-
-        .produto-info h3 {
-            color: #5a4a6a;
-            margin-bottom: 10px;
-        }
-
-        .produto-info p {
-            color: #7a6a8a;
-            margin-bottom: 15px;
-        }
+        .produto-info { padding: 20px; }
+        .produto-info h3 { color: #5a4a6a; margin-bottom: 10px; }
+        .produto-info p  { color: #7a6a8a; margin-bottom: 15px; }
 
         .preco {
             font-size: 1.5em;
@@ -259,11 +242,7 @@
             text-align: center;
         }
 
-        .sobre-section h2 {
-            color: #b19cd9;
-            font-size: 2em;
-            margin-bottom: 20px;
-        }
+        .sobre-section h2 { color: #b19cd9; font-size: 2em; margin-bottom: 20px; }
 
         .sobre-section p {
             font-size: 1.1em;
@@ -272,19 +251,199 @@
         }
 
         @media (max-width: 768px) {
-            .hero {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-            
-            .hero-content h1 {
-                font-size: 2em;
-            }
-            
-            nav ul {
-                flex-direction: column;
-                gap: 15px;
-            }
+            .hero { grid-template-columns: 1fr; text-align: center; }
+            .hero-content h1 { font-size: 2em; }
+            nav ul { flex-direction: column; gap: 15px; }
+        }
+
+        /* ── WHATSAPP WIDGET ─────────────────────────────────────────────────
+           Botão flutuante → verde WhatsApp (reconhecível)
+           Popup            → paleta do site (lilás/branco)
+        ─────────────────────────────────────────────────────────────────── */
+
+        /* Botão flutuante — verde WhatsApp original */
+        .wa-btn {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 999;
+            width: 62px;
+            height: 62px;
+            background: #25d366;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 18px rgba(37,211,102,0.5);
+            cursor: pointer;
+            border: none;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .wa-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 24px rgba(37,211,102,0.65);
+        }
+
+        .wa-btn svg {
+            width: 32px;
+            height: 32px;
+            fill: white;
+        }
+
+        /* bolinha rosa — mesma do cart-badge */
+        .wa-dot {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            width: 14px;
+            height: 14px;
+            background: #ff6b9d;
+            border-radius: 50%;
+            border: 2px solid white;
+            animation: wa-pulse 1.8s infinite;
+        }
+
+        @keyframes wa-pulse {
+            0%, 100% { transform: scale(1);    opacity: 1; }
+            50%       { transform: scale(1.35); opacity: .8; }
+        }
+
+        /* Popup — card branco arredondado, paleta do site */
+        .wa-popup {
+            position: fixed;
+            bottom: 104px;
+            right: 28px;
+            z-index: 998;
+            width: 300px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            overflow: hidden;
+            transform: scale(0.85) translateY(16px);
+            transform-origin: bottom right;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
+        }
+
+        .wa-popup.open {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Header: gradiente lilás/azul do site */
+        .wa-popup-header {
+            background: linear-gradient(135deg, #b19cd9, #9bc4d9);
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        .wa-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4em;
+            flex-shrink: 0;
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+
+        .wa-popup-header-info h4 {
+            color: white;
+            font-size: 1em;
+            margin-bottom: 2px;
+        }
+
+        .wa-popup-header-info span {
+            color: rgba(255,255,255,0.9);
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .wa-online {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            background: #d4f5c4;
+            border-radius: 50%;
+        }
+
+        .wa-close {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.75);
+            font-size: 1.1em;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .wa-close:hover { color: white; }
+
+        /* Corpo — paleta do site */
+        .wa-popup-body { padding: 18px; }
+
+        /* Bolha de mensagem — lilás suave */
+        .wa-bubble {
+            background: linear-gradient(135deg, #f0eafa, #e8f4fa);
+            border: 1px solid #ddd5f0;
+            border-radius: 14px 14px 14px 2px;
+            padding: 12px 14px;
+            font-size: 0.93em;
+            color: #5a4a6a;
+            line-height: 1.55;
+            margin-bottom: 14px;
+        }
+
+        .wa-bubble-time {
+            display: block;
+            font-size: 0.73em;
+            color: #b0a0c0;
+            text-align: right;
+            margin-top: 6px;
+        }
+
+        /* Botão CTA — gradiente lilás/azul do site */
+        .wa-popup-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            background: linear-gradient(135deg, #b19cd9, #9bc4d9);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-family: 'Georgia', serif;
+            font-size: 0.93em;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 3px 12px rgba(177,156,217,0.4);
+        }
+
+        .wa-popup-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 18px rgba(177,156,217,0.55);
+        }
+
+        .wa-popup-link svg {
+            width: 17px;
+            height: 17px;
+            fill: white;
+            flex-shrink: 0;
         }
     </style>
 </head>
@@ -358,7 +517,59 @@
         <p>&copy; 2026 Croche by Ju - Todos os direitos reservados</p>
         <p>Feito com ❤️ e muitos pontos de crochê</p>
     </footer>
+
+    <!-- ── WHATSAPP WIDGET ─────────────────────────────────────────────── -->
+    <div class="wa-popup" id="waPopup">
+        <div class="wa-popup-header">
+            <div class="wa-avatar">🧶</div>
+            <div class="wa-popup-header-info">
+                <h4>Croche by Ju</h4>
+                <span><span class="wa-online"></span> Online agora</span>
+            </div>
+            <button class="wa-close" onclick="toggleWa()" aria-label="Fechar">✕</button>
+        </div>
+        <div class="wa-popup-body">
+            <div class="wa-bubble">
+                Olá! 👋 Tudo bem?<br>
+                Quer tirar dúvidas ou fazer uma encomenda especial? Me chama no WhatsApp! 🌸
+                <span class="wa-bubble-time">agora</span>
+            </div>
+            <a class="wa-popup-link"
+               href="https://wa.me/5521973512746?text=Ol%C3%A1%2C%20vim%20pelo%20site%20e%20gostaria%20de%20saber%20mais%20sobre%20os%20produtos%21"
+               target="_blank" rel="noopener">
+                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.775L0 32l8.476-2.003A15.938 15.938 0 0 0 16 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm8.065 22.186c-.334.94-1.944 1.793-2.683 1.907-.683.106-1.548.15-2.497-.156-.576-.185-1.315-.432-2.256-.846-3.972-1.715-6.565-5.717-6.762-5.983-.196-.265-1.6-2.128-1.6-4.059 0-1.93 1.013-2.88 1.372-3.269.36-.389.783-.486 1.045-.486.261 0 .522.002.75.014.241.012.564-.092.883.673.334.797 1.135 2.727 1.234 2.926.1.198.166.43.033.694-.134.265-.2.43-.397.664-.196.234-.413.523-.59.702-.196.199-.4.413-.172.81.228.397 1.013 1.67 2.175 2.704 1.495 1.33 2.757 1.742 3.153 1.94.397.198.628.166.861-.1.233-.265.998-1.163 1.264-1.562.265-.397.53-.331.894-.199.364.133 2.313 1.09 2.71 1.287.397.199.661.299.759.465.097.166.097.963-.237 1.904z"/>
+                </svg>
+                Falar no WhatsApp
+            </a>
+        </div>
+    </div>
+
+    <!-- Botão flutuante — verde WhatsApp para ser imediatamente reconhecível -->
+    <button class="wa-btn" id="waBtn" onclick="toggleWa()" aria-label="Falar no WhatsApp">
+        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.775L0 32l8.476-2.003A15.938 15.938 0 0 0 16 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm8.065 22.186c-.334.94-1.944 1.793-2.683 1.907-.683.106-1.548.15-2.497-.156-.576-.185-1.315-.432-2.256-.846-3.972-1.715-6.565-5.717-6.762-5.983-.196-.265-1.6-2.128-1.6-4.059 0-1.93 1.013-2.88 1.372-3.269.36-.389.783-.486 1.045-.486.261 0 .522.002.75.014.241.012.564-.092.883.673.334.797 1.135 2.727 1.234 2.926.1.198.166.43.033.694-.134.265-.2.43-.397.664-.196.234-.413.523-.59.702-.196.199-.4.413-.172.81.228.397 1.013 1.67 2.175 2.704 1.495 1.33 2.757 1.742 3.153 1.94.397.198.628.166.861-.1.233-.265.998-1.163 1.264-1.562.265-.397.53-.331.894-.199.364.133 2.313 1.09 2.71 1.287.397.199.661.299.759.465.097.166.097.963-.237 1.904z"/>
+        </svg>
+        <span class="wa-dot"></span>
+    </button>
+
     <script>
+        setTimeout(() => {
+            document.getElementById('waPopup').classList.add('open');
+        }, 4000);
+
+        function toggleWa() {
+            document.getElementById('waPopup').classList.toggle('open');
+        }
+
+        document.addEventListener('click', function(e) {
+            const popup = document.getElementById('waPopup');
+            const btn   = document.getElementById('waBtn');
+            if (popup.classList.contains('open') && !popup.contains(e.target) && !btn.contains(e.target)) {
+                popup.classList.remove('open');
+            }
+        });
+
         function updateNavBadge() {
             try {
                 const cart = JSON.parse(localStorage.getItem('croche_cart') || '[]');
