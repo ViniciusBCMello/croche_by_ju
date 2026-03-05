@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from datetime import datetime
 import os
+import requests as http_requests
 import mercadopago
 
 app = Flask(__name__)
@@ -74,8 +75,8 @@ def init_db():
     """Cria as tabelas e o admin padrão se não existir nenhum usuário."""
     db.create_all()
     if AdminUser.query.count() == 0:
-        username = os.environ.get('ADMIN_USERNAME', 'admin')
-        password = os.environ.get('ADMIN_PASSWORD', 'admin123')
+        username = os.environ.get('ADMIN_USERNAME', 'sua-chave-secreta-aqui')
+        password = os.environ.get('ADMIN_PASSWORD', 'sua-chave-secreta-aqui')
         admin = AdminUser(username=username)
         admin.set_password(password)
         db.session.add(admin)
@@ -152,6 +153,83 @@ def admin_alterar_senha():
             return redirect(url_for('admin_produtos'))
 
     return render_template('admin_alterar_senha.html')
+
+
+@app.route('/admin/conectar-vendedor')
+@login_required
+def conectar_vendedor():
+    MP_CLIENT_ID = os.environ.get('MP_CLIENT_ID', 'sua-chave-secreta-aqui')
+    MP_CLIENT_SECRET = os.environ.get('MP_CLIENT_SECRET', 'sua-chave-secreta-aqui')
+
+    if not MP_CLIENT_ID:
+        flash('MP_CLIENT_ID não configurado nas variáveis de ambiente.', 'error')
+        return redirect(url_for('admin_produtos'))
+
+    redirect_uri = url_for('mp_callback', _external=True)
+    auth_url = (
+        "https://auth.mercadopago.com.br/authorization"
+        f"?client_id={MP_CLIENT_ID}"
+        "&response_type=code"
+        "&platform_id=mp"
+        f"&redirect_uri={redirect_uri}"
+    )
+    return redirect(auth_url)
+
+
+@app.route('/admin/mp-callback')
+@login_required
+def mp_callback():
+    MP_CLIENT_ID = os.environ.get('MP_CLIENT_ID', 'sua-chave-secreta-aqui')
+    MP_CLIENT_SECRET = os.environ.get('MP_CLIENT_SECRET', 'sua-chave-secreta-aqui')
+
+    code  = request.args.get('code')
+    error = request.args.get('error')
+
+    if error or not code:
+        flash(f'Autorização negada ou cancelada pelo Mercado Pago: {error}', 'error')
+        return redirect(url_for('admin_produtos'))
+
+    redirect_uri = url_for('mp_callback', _external=True)
+
+    try:
+        resp = http_requests.post(
+            'https://api.mercadopago.com/oauth/token',
+            json={
+                'client_id':     MP_CLIENT_ID,
+                'client_secret': MP_CLIENT_SECRET,
+                'grant_type':    'authorization_code',
+                'code':          code,
+                'redirect_uri':  redirect_uri,
+            },
+            timeout=10
+        )
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception as e:
+        flash(f'Erro ao obter token do Mercado Pago: {e}', 'error')
+        return redirect(url_for('admin_produtos'))
+
+    access_token  = data.get('access_token')
+    refresh_token = data.get('refresh_token')
+    user_id       = data.get('user_id')
+
+    if not access_token:
+        flash(f'Resposta inesperada do MP: {data}', 'error')
+        return redirect(url_for('admin_produtos'))
+
+    # Ativa o token imediatamente para esta sessão do servidor
+    app.config['MP_SELLER_TOKEN'] = access_token
+
+    flash('✅ Conta da vendedora conectada com sucesso!', 'success')
+
+    # Renderiza página com o token para você copiar e salvar no servidor
+    return render_template(
+        'mp_oauth_sucesso.html',
+        access_token=access_token,
+        refresh_token=refresh_token,
+        user_id=user_id
+    )
+
 
 
 # ── ROTAS PÚBLICAS ────────────────────────────────────────────────────────────
@@ -247,12 +325,18 @@ def finalizar_compra():
                         "failure": url_for('pagamento_falha', pedido_id=pedido.id, _external=True),
                         "pending": url_for('pagamento_pendente', pedido_id=pedido.id, _external=True)
                     },
+                    "auto_return": "approved",
                     "external_reference": str(pedido.id)
                 }
                 preference_response = sdk.preference().create(preference_data)
                 preference = preference_response.get("response", preference_response)
+
+                if "id" not in preference:
+                    raise ValueError(f"Resposta inesperada do MP: {preference}")
+
                 pedido.preference_id = preference["id"]
                 db.session.commit()
+
                 init_point = preference.get("init_point") or preference.get("sandbox_init_point")
                 return redirect(init_point)
 
