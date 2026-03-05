@@ -1,39 +1,270 @@
-{% extends "base.html" %}
-{% block content %}
-<div style="max-width:600px; margin:40px auto; font-family:sans-serif;">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conta Conectada — Croche by Ju</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  <h2>✅ Conta da vendedora conectada!</h2>
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #e6d5f0 0%, #d0e8f2 50%, #f5e8d0 100%);
+            color: #5a4a6a;
+        }
 
-  <p>O token abaixo foi gerado para a conta autorizada (<strong>User ID: {{ user_id }}</strong>).<br>
-     Copie-o e salve como variável de ambiente <code>MERCADOPAGO_ACCESS_TOKEN</code> no seu servidor.</p>
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-  <div style="background:#f4f4f4; border:1px solid #ccc; border-radius:6px; padding:16px; word-break:break-all;">
-    <strong>Access Token:</strong><br>
-    <code id="token">{{ access_token }}</code>
-  </div>
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
 
-  <button onclick="navigator.clipboard.writeText('{{ access_token }}').then(() => alert('Copiado!'))"
-          style="margin-top:12px; padding:8px 18px; cursor:pointer;">
-    Copiar token
-  </button>
+        .logo {
+            font-size: 2em;
+            color: #b19cd9;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-  {% if refresh_token %}
-  <div style="margin-top:20px; background:#f4f4f4; border:1px solid #ccc; border-radius:6px; padding:16px; word-break:break-all;">
-    <strong>Refresh Token</strong> (guarde para renovar o access token no futuro):<br>
-    <code>{{ refresh_token }}</code>
-  </div>
-  {% endif %}
+        .logo::before { content: "🧶"; font-size: 1.2em; }
 
-  <hr style="margin:30px 0;">
+        nav ul { display: flex; list-style: none; gap: 30px; }
 
-  <h4>Próximos passos:</h4>
-  <ol>
-    <li>Copie o <strong>Access Token</strong> acima</li>
-    <li>No Render (ou seu servidor), vá em <em>Environment → Environment Variables</em></li>
-    <li>Atualize <code>MERCADOPAGO_ACCESS_TOKEN</code> com esse valor</li>
-    <li>Faça o redeploy — todos os pagamentos vão direto para a conta da Julia ✅</li>
-  </ol>
+        nav a {
+            text-decoration: none;
+            color: #5a4a6a;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
 
-  <a href="{{ url_for('admin_produtos') }}">← Voltar ao painel</a>
-</div>
-{% endblock %}
+        nav a:hover { color: #b19cd9; }
+
+        .nav-cart-btn {
+            position: relative;
+            background: linear-gradient(135deg, #b19cd9, #9bc4d9);
+            color: white !important;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold !important;
+        }
+
+        /* ── CONTEÚDO ── */
+        .container {
+            max-width: 700px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #b19cd9;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: #6a5a7a;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .token-box {
+            background: linear-gradient(135deg, #f0eafa, #e8f4fa);
+            border: 2px solid #b19cd9;
+            border-radius: 12px;
+            padding: 20px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 13px;
+            color: #5a4a6a;
+            margin-bottom: 16px;
+        }
+
+        .token-box strong {
+            display: block;
+            margin-bottom: 10px;
+            color: #b19cd9;
+            font-family: 'Georgia', serif;
+            font-size: 15px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #b19cd9, #9bc4d9);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            font-family: 'Georgia', serif;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 15px rgba(177, 156, 217, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(177, 156, 217, 0.5);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #b19cd9;
+            border: 2px solid #b19cd9;
+            margin-top: 8px;
+        }
+
+        .aviso {
+            background: #fff8e1;
+            border-left: 4px solid #f5d98d;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin: 20px 0;
+            color: #7a6a4a;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .passos {
+            margin: 24px 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: passos;
+        }
+
+        .passos li {
+            counter-increment: passos;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            margin-bottom: 14px;
+            color: #6a5a7a;
+            line-height: 1.6;
+        }
+
+        .passos li::before {
+            content: counter(passos);
+            min-width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #b19cd9, #9bc4d9);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-family: sans-serif;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        code {
+            background: #f0eafa;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #7a4aaa;
+        }
+
+        .divider { border: none; border-top: 1px solid #eee; margin: 28px 0; }
+
+        footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px 20px;
+            margin-top: 80px;
+            text-align: center;
+            color: #5a4a6a;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <nav>
+        <a href="/" class="logo">Croche by Ju</a>
+        <ul>
+            <li><a href="/">Início</a></li>
+            <li><a href="/produtos">Produtos</a></li>
+            <li><a href="/admin/produtos">Admin</a></li>
+            <li><a href="/carrinho" class="nav-cart-btn">🛒 Carrinho</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <div class="container">
+        <div class="card">
+
+            <h2>✅ Conta conectada!</h2>
+            <p>A conta de <strong>User ID: {{ user_id }}</strong> foi autorizada com sucesso.<br>
+               Copie o token abaixo e salve como variável de ambiente no Render.</p>
+
+            <div class="token-box">
+                <strong>🔑 Access Token</strong>
+                <span id="token">{{ access_token }}</span>
+            </div>
+
+            <button class="btn" onclick="navigator.clipboard.writeText(document.getElementById('token').innerText).then(() => alert('✅ Token copiado!'))">
+                Copiar Access Token
+            </button>
+
+            {% if refresh_token %}
+            <div class="token-box" style="margin-top: 20px;">
+                <strong>🔄 Refresh Token (guarde para renovar no futuro)</strong>
+                <span>{{ refresh_token }}</span>
+            </div>
+            {% endif %}
+
+            <div class="aviso">
+                ⚠️ <strong>Não compartilhe esse token.</strong> Ele dá acesso à conta de pagamento da vendedora. Salve em local seguro.
+            </div>
+
+            <hr class="divider">
+
+            <h3 style="color:#b19cd9; margin-bottom:16px;">Próximos passos</h3>
+            <ol class="passos">
+                <li>Copie o <strong>Access Token</strong> acima</li>
+                <li>No Render, acesse seu serviço → <strong>Environment → Environment Variables</strong></li>
+                <li>Atualize <code>MERCADOPAGO_ACCESS_TOKEN</code> com esse valor</li>
+                <li>Clique em <strong>Save Changes</strong> — o Render vai redeployar</li>
+                <li>Pronto! Todos os pagamentos vão direto para a conta da Julia 🎉</li>
+            </ol>
+
+            <hr class="divider">
+
+            <a href="/admin/produtos" class="btn btn-secondary">← Voltar ao painel</a>
+
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2026 Croche by Ju - Todos os direitos reservados</p>
+    <p>Feito com ❤️ e muitos pontos de crochê</p>
+</footer>
+
+</body>
+</html>
